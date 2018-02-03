@@ -268,8 +268,8 @@ $app->delete("/user/{id}", function (Request $request, Response $response, $args
 // ubah user
 $app->put("/user/{id}", function (Request $request, Response $response, $args){
     $id = $args["id"];
-    $new_sanggar = $request->getParsedBody();
-    $sql = "UPDATE user SET nama_user=:nama_user, email=:email, no_hp=:no_hp, alamat=:alamat, username=:username, password=:password WHERE id_sanggar=:id";
+    $new_user = $request->getParsedBody();
+    $sql = "UPDATE user SET nama_user=:nama_user, email=:email, no_hp=:no_hp, alamat=:alamat, username=:username, password=:password WHERE id_user=:id";
     $stmt = $this->db->prepare($sql);
     
     $data = [
