@@ -40,7 +40,7 @@ $app->post("/pelatih/", function (Request $request, Response $response){
 
     $new_pelatih = $request->getParsedBody();
 
-    $sql = "INSERT INTO pelatih (nama_pelatih, aliran, deskripsi, no_hp, email, alamat, kota, foto_profil, hari, waktu, biaya) VALUE (:nama_pelatih, :aliran, :deskripsi, :no_hp, :email, :kota, :foto_profil,:hari, :waktu, :biaya)";
+    $sql = "INSERT INTO pelatih (nama_pelatih, aliran, deskripsi, no_hp, email, alamat, kota, foto_profil, hari, waktu, biaya) VALUE (:nama_pelatih, :aliran, :deskripsi, :no_hp, :email,:alamat, :kota, :foto_profil,:hari, :waktu, :biaya)";
     $stmt = $this->db->prepare($sql);
 
     $data = [
@@ -132,7 +132,7 @@ $app->post("/sanggar/", function (Request $request, Response $response){
 
     $new_sanggar = $request->getParsedBody();
 
-    $sql = "INSERT INTO sanggar (nama_sanggar, aliran, deskripsi, pelatih, no_hp, email, alamat, kota, website, latitude, longitude, gambar, hari, waktu, biaya) VALUE (:nama_sanggar, :aliran, :deskripsi, :pelatih, :no_hp, :email, :kota, :website, :latitude, :longitude, :gambar, :hari, :waktu, :biaya)";
+    $sql = "INSERT INTO sanggar (nama_sanggar, aliran, deskripsi, pelatih, no_hp, email, alamat, kota, website, latitude, longitude, gambar, hari, waktu, biaya) VALUE (:nama_sanggar, :aliran, :deskripsi, :pelatih, :no_hp, :email, :alamat, :kota, :website, :latitude, :longitude, :gambar, :hari, :waktu, :biaya)";
     $stmt = $this->db->prepare($sql);
 
     $data = [
@@ -206,3 +206,6 @@ $app->put("/sanggar/{id}", function (Request $request, Response $response, $args
     
     return $response->withJson(["status" => "failed", "data" => "0"], 200);
 });
+
+
+
