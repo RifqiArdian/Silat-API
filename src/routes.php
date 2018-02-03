@@ -207,5 +207,83 @@ $app->put("/sanggar/{id}", function (Request $request, Response $response, $args
     return $response->withJson(["status" => "failed", "data" => "0"], 200);
 });
 
+// get user
+$app->get("/user/", function (Request $request, Response $response){
+    $sql = "SELECT * FROM user";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->fetchAll();
+    return $response->withJson(["status" => "success", "data" => $result], 200);
+});
 
+// show user
+$app->get("/user/{id}", function (Request $request, Response $response, $args){
+    $id = $args["id"];
+    $sql = "SELECT * FROM user WHERE id_user=:id";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([":id" => $id]);
+    $result = $stmt->fetch();
+    return $response->withJson(["status" => "success", "data" => $result], 200);
+});
 
+// post user
+$app->post("/user/", function (Request $request, Response $response){
+
+    $new_user = $request->getParsedBody();
+
+    $sql = "INSERT INTO user (nama_user, email, no_hp, alamat, username, password) VALUE (:nama_user, :email, :no_hp, :alamat, :username, :password)";
+    $stmt = $this->db->prepare($sql);
+
+    $data = [
+        ":nama_user" => $new_user["nama_user"],
+        ":email" => $new_user["email"],
+        ":no_hp" => $new_user["no_hp"],
+        ":alamat" => $new_user["alamat"],
+        ":username" => $new_user["username"],
+        ":password" => $new_user["password"]
+    ];
+
+    if($stmt->execute($data))
+       return $response->withJson(["status" => "success", "data" => "1"], 200);
+    
+    return $response->withJson(["status" => "failed", "data" => "0"], 200);
+});
+
+// hapus user
+$app->delete("/user/{id}", function (Request $request, Response $response, $args){
+    $id = $args["id"];
+    $sql = "DELETE FROM user WHERE id_user=:id";
+    $stmt = $this->db->prepare($sql);
+    
+    $data = [
+        ":id" => $id
+    ];
+
+    if($stmt->execute($data))
+       return $response->withJson(["status" => "success", "data" => "1"], 200);
+    
+    return $response->withJson(["status" => "failed", "data" => "0"], 200);
+});
+
+// ubah user
+$app->put("/user/{id}", function (Request $request, Response $response, $args){
+    $id = $args["id"];
+    $new_sanggar = $request->getParsedBody();
+    $sql = "UPDATE user SET nama_user=:nama_user, email=:email, no_hp=:no_hp, alamat=:alamat, username=:username, password=:password WHERE id_sanggar=:id";
+    $stmt = $this->db->prepare($sql);
+    
+    $data = [
+        ":id" => $id,
+        ":nama_user" => $new_user["nama_user"],
+        ":email" => $new_user["email"],
+        ":no_hp" => $new_user["no_hp"],
+        ":alamat" => $new_user["alamat"],
+        ":username" => $new_user["username"],
+        ":password" => $new_user["password"]
+    ];
+
+    if($stmt->execute($data))
+       return $response->withJson(["status" => "success", "data" => "1"], 200);
+    
+    return $response->withJson(["status" => "failed", "data" => "0"], 200);
+});
