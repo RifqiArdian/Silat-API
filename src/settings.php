@@ -3,7 +3,8 @@ return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
-        'upload_directory' => __DIR__ . '/../public/uploads', // upload directory
+        'upload_directory_pelatih' => __DIR__ . '/../public/uploads/pelatih', // upload directory pleatih
+        'upload_directory_sanggar' => __DIR__ . '/../public/uploads/sanggar', // upload directory sanggar
         
         // Renderer settings
         'renderer' => [

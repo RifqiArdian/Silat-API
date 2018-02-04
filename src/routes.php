@@ -287,3 +287,73 @@ $app->put("/user/{id}", function (Request $request, Response $response, $args){
     
     return $response->withJson(["status" => "failed", "data" => "0"], 200);
 });
+
+// post image pelatih
+$app->post('/pelatih/foto_profil/{id}', function(Request $request, Response $response, $args) {
+    
+    $uploadedFiles = $request->getUploadedFiles();
+    
+    // handle single input with single file upload
+    $uploadedFile = $uploadedFiles['foto_profil'];
+    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+        
+        $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+        
+        // ubah nama file dengan id buku
+        $filename = sprintf('%s.%0.8s', $args["id"], $extension);
+        
+        $directory = $this->get('settings')['upload_directory_pelatih'];
+        $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+
+        // simpan nama file ke database
+        $sql = "UPDATE pelatih SET foto_profil=:foto_profil WHERE id_pelatih=:id";
+        $stmt = $this->db->prepare($sql);
+        $params = [
+            ":id" => $args["id"],
+            ":foto_profil" => $filename
+        ];
+        
+        if($stmt->execute($params)){
+            // ambil base url dan gabungkan dengan file name untuk membentuk URL file
+            $url = $request->getUri()->getBaseUrl()."/uploads/pelatih/".$filename;
+            return $response->withJson(["status" => "success", "data" => $url], 200);
+        }
+        
+        return $response->withJson(["status" => "failed", "data" => "0"], 200);
+    }
+});
+
+// post image sanggar
+$app->post('/sanggar/gambar/{id}', function(Request $request, Response $response, $args) {
+    
+    $uploadedFiles = $request->getUploadedFiles();
+    
+    // handle single input with single file upload
+    $uploadedFile = $uploadedFiles['gambar'];
+    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+        
+        $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+        
+        // ubah nama file dengan id buku
+        $filename = sprintf('%s.%0.8s', $args["id"], $extension);
+        
+        $directory = $this->get('settings')['upload_directory_sanggar'];
+        $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+
+        // simpan nama file ke database
+        $sql = "UPDATE sanggar SET gambar=:gambar WHERE id_sanggar=:id";
+        $stmt = $this->db->prepare($sql);
+        $params = [
+            ":id" => $args["id"],
+            ":gambar" => $filename
+        ];
+        
+        if($stmt->execute($params)){
+            // ambil base url dan gabungkan dengan file name untuk membentuk URL file
+            $url = $request->getUri()->getBaseUrl()."/uploads/sanggar/".$filename;
+            return $response->withJson(["status" => "success", "data" => $url], 200);
+        }
+        
+        return $response->withJson(["status" => "failed", "data" => "0"], 200);
+    }
+});
