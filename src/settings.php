@@ -21,7 +21,7 @@ return [
         // Database Settings
         'db' => [
             'host' => 'localhost',
-            'user' => 'root',
+            'user' => ' root',
             'pass' => '',
             'dbname' => 'silat',
             'driver' => 'mysql'

@@ -3,9 +3,18 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\UploadedFile;
+use Http\Controllers\PelatihControllers;
+
+require 'vendor/autoload.php';
+require 'libs/NotOrm.php';
+
+function getConnect(){
+    require_once 'include/dbHandler.php';
+    $db = new dbHandler();
+    return $db;
+}
 
 // Routes
-
 $app->get('/[{name}]', function (Request $request, Response $response, array $args) {
     // Sample log message
     $this->logger->info("Slim-Skeleton '/' route");
@@ -37,12 +46,9 @@ $app->get("/pelatih/{id}", function (Request $request, Response $response, $args
 
 // post pelatih
 $app->post("/pelatih/", function (Request $request, Response $response){
-
     $new_pelatih = $request->getParsedBody();
-
     $sql = "INSERT INTO pelatih (nama_pelatih, aliran, deskripsi, no_hp, email, alamat, kota, foto_profil, hari, waktu, biaya) VALUE (:nama_pelatih, :aliran, :deskripsi, :no_hp, :email,:alamat, :kota, :foto_profil,:hari, :waktu, :biaya)";
     $stmt = $this->db->prepare($sql);
-
     $data = [
         ":nama_pelatih" => $new_pelatih["nama_pelatih"],
         ":aliran" => $new_pelatih["aliran"],
@@ -56,7 +62,6 @@ $app->post("/pelatih/", function (Request $request, Response $response){
         ":waktu" => $new_pelatih["waktu"],
         ":biaya" => $new_pelatih["biaya"]
     ];
-
     if($stmt->execute($data))
        return $response->withJson(["status" => "success", "data" => "1"], 200);
     
@@ -207,86 +212,6 @@ $app->put("/sanggar/{id}", function (Request $request, Response $response, $args
     return $response->withJson(["status" => "failed", "data" => "0"], 200);
 });
 
-// get user
-$app->get("/user/", function (Request $request, Response $response){
-    $sql = "SELECT * FROM user";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute();
-    $result = $stmt->fetchAll();
-    return $response->withJson(["status" => "success", "data" => $result], 200);
-});
-
-// show user
-$app->get("/user/{id}", function (Request $request, Response $response, $args){
-    $id = $args["id"];
-    $sql = "SELECT * FROM user WHERE id_user=:id";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([":id" => $id]);
-    $result = $stmt->fetch();
-    return $response->withJson(["status" => "success", "data" => $result], 200);
-});
-
-// post user
-$app->post("/user/", function (Request $request, Response $response){
-
-    $new_user = $request->getParsedBody();
-
-    $sql = "INSERT INTO user (nama_user, email, no_hp, alamat, username, password) VALUE (:nama_user, :email, :no_hp, :alamat, :username, :password)";
-    $stmt = $this->db->prepare($sql);
-
-    $data = [
-        ":nama_user" => $new_user["nama_user"],
-        ":email" => $new_user["email"],
-        ":no_hp" => $new_user["no_hp"],
-        ":alamat" => $new_user["alamat"],
-        ":username" => $new_user["username"],
-        ":password" => $new_user["password"]
-    ];
-
-    if($stmt->execute($data))
-       return $response->withJson(["status" => "success", "data" => "1"], 200);
-    
-    return $response->withJson(["status" => "failed", "data" => "0"], 200);
-});
-
-// hapus user
-$app->delete("/user/{id}", function (Request $request, Response $response, $args){
-    $id = $args["id"];
-    $sql = "DELETE FROM user WHERE id_user=:id";
-    $stmt = $this->db->prepare($sql);
-    
-    $data = [
-        ":id" => $id
-    ];
-
-    if($stmt->execute($data))
-       return $response->withJson(["status" => "success", "data" => "1"], 200);
-    
-    return $response->withJson(["status" => "failed", "data" => "0"], 200);
-});
-
-// ubah user
-$app->put("/user/{id}", function (Request $request, Response $response, $args){
-    $id = $args["id"];
-    $new_user = $request->getParsedBody();
-    $sql = "UPDATE user SET nama_user=:nama_user, email=:email, no_hp=:no_hp, alamat=:alamat, username=:username, password=:password WHERE id_user=:id";
-    $stmt = $this->db->prepare($sql);
-    
-    $data = [
-        ":id" => $id,
-        ":nama_user" => $new_user["nama_user"],
-        ":email" => $new_user["email"],
-        ":no_hp" => $new_user["no_hp"],
-        ":alamat" => $new_user["alamat"],
-        ":username" => $new_user["username"],
-        ":password" => $new_user["password"]
-    ];
-
-    if($stmt->execute($data))
-       return $response->withJson(["status" => "success", "data" => "1"], 200);
-    
-    return $response->withJson(["status" => "failed", "data" => "0"], 200);
-});
 
 // post image pelatih
 $app->post('/pelatih/foto_profil/{id}', function(Request $request, Response $response, $args) {
@@ -299,7 +224,7 @@ $app->post('/pelatih/foto_profil/{id}', function(Request $request, Response $res
         
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
         
-        // ubah nama file dengan id buku
+        // ubah nama file dengan id
         $filename = sprintf('%s.%0.8s', $args["id"], $extension);
         
         $directory = $this->get('settings')['upload_directory_pelatih'];
@@ -334,7 +259,7 @@ $app->post('/sanggar/gambar/{id}', function(Request $request, Response $response
         
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
         
-        // ubah nama file dengan id buku
+        // ubah nama file dengan id
         $filename = sprintf('%s.%0.8s', $args["id"], $extension);
         
         $directory = $this->get('settings')['upload_directory_sanggar'];
@@ -355,5 +280,93 @@ $app->post('/sanggar/gambar/{id}', function(Request $request, Response $response
         }
         
         return $response->withJson(["status" => "failed", "data" => "0"], 200);
+    }
+});
+
+$app->post('/login', function($req, $res, $arg) use($app){
+    $db = getConnect();
+    $user = $req->getParam('username');
+    $pass = md5($req->getParam('password'));
+    if($result = $db->verifyLogin($user, $pass)){
+        echo json_encode($result);
+    }else{
+        echo json_encode(array(
+            'status'    => false,
+            'message'   => 'Data tidak ditemukan'));
+    }
+});
+
+$app->get('/users/{auth}', function($req, $res, $arg) use($app){
+    $db = getConnect();
+    if(isset($arg['auth'])){
+        if($db->validate($arg['auth'])){
+            $result = $db->getUsers();
+            echo json_encode($result);
+        }else{
+            echo json_encode(array(
+                'status'    => false,
+                'message'   => 'Api key belum terdaftar'));
+        }
+    }
+});
+
+$app->get('/user/{id}/{auth}', function($req, $res, $arg) use($app){
+    $db = getConnect();
+    if(isset($arg['auth'])){
+        if($db->validate($arg['auth'])){
+            if($db->getUserById($arg['id'])){
+                $result = $db->getUserById($arg['id']);
+                echo json_encode($result);
+            }
+        }else{
+            echo json_encode(array(
+                'status'    => false,
+                'message'   => 'Api key belum terdaftar'));
+        }
+    }
+});
+
+//Register user
+$app->post('/user', function($req, $res, $arg) use($app){
+    $db = getConnect(); 
+    $data = $req->getParams();
+    if($result = $db->createUser($data))
+        echo json_encode(array('status' => $result));
+    else
+        echo json_encode(array(
+            'status'    => false,
+            'message'   => 'Gagal menambahkan data'));
+});
+
+$app->put('/user/{id}/{auth}', function($req, $res, $arg) use($app){
+    $db = getConnect();
+    if(isset($arg['auth'])){
+        if($db->validate($arg['auth'])){    
+            $data = $req->getParams();
+            $result = $db->updateUser($arg['id'], $data);
+            echo json_encode(array(
+                'status'    => $result));
+        }else{
+            echo json_encode(array(
+                'status'    => false,
+                'message'   => 'Api key belum terdaftar'));
+        }
+    }
+});
+
+$app->delete('/user/{id}/{auth}', function($req, $res, $arg) use($app){
+    $db = getConnect();
+    if(isset($arg['auth'])){
+        if($db->validate($arg['auth'])){
+            if(isset($arg['id'])){
+                $delete = $db->deleteUser($arg['id']);
+                echo json_encode(array(
+                    'status'    => $delete));
+            }
+        }else{
+            echo json_encode(array(
+                'status'    => false,
+                'message'   => 'Api key belum terdaftar'));
+        }
     }
 });
